@@ -4,64 +4,6 @@
 -- License:     MIT
 -- Source:      https://github.com/illotum/flat.nvim
 
--- Define colors --
-
-local C = {
-  term = {
-    fg      = 12,
-    bg      = 8,
-    -- 16 colors
-    base03  = 8,
-    base02  = 0,
-    base01  = 10,
-    base00  = 11,
-    base0   = 12,
-    base1   = 14,
-    base2   = 7,
-    base3   = 15,
-    yellow  = 3,
-    orange  = 9,
-    red     = 1,
-    magenta = 5,
-    violet  = 13,
-    blue    = 4,
-    cyan    = 6,
-    green   = 2,
-  },
-  hex = {
-    fg      = "#839496",
-    bg      = "#002b36",
-    -- 16 colors
-    base03  = "#002b36",
-    base02  = "#073642",
-    base01  = "#586e75",
-    base00  = "#657b83",
-    base0   = "#839496",
-    base1   = "#93a1a1",
-    base2   = "#eee8d5",
-    base3   = "#fdf6e3",
-    yellow  = "#b58900",
-    orange  = "#cb4b16",
-    red     = "#dc322f",
-    magenta = "#d33682",
-    violet  = "#6c71c4",
-    blue    = "#268bd2",
-    cyan    = "#2aa198",
-    green   = "#859900",
-  }
-}
-
-if vim.o.background == "light" then
-  C.hex.base0, C.hex.base00 = C.hex.base00, C.hex.base0
-  C.hex.base1, C.hex.base01 = C.hex.base01, C.hex.base1
-  C.hex.base2, C.hex.base02 = C.hex.base02, C.hex.base2
-  C.hex.base3, C.hex.base03 = C.hex.base03, C.hex.base3
-  C.term.base0, C.term.base00 = C.term.base00, C.term.base0
-  C.term.base1, C.term.base01 = C.term.base01, C.term.base1
-  C.term.base2, C.term.base02 = C.term.base02, C.term.base2
-  C.term.base3, C.term.base03 = C.term.base03, C.term.base3
-end
-
 local theme = {
   -- Syntax
   Normal                   = { fg = "fg", bg = "bg" },
@@ -101,6 +43,8 @@ local theme = {
   Todo                     = { fg = "magenta", bold = true },
   Error                    = { fg = "red", bold = true },
   NvimInternalError        = { link = "Error" },
+  -- TS Syntax
+  ['@field']               = { fg = "fg" },
   -- Editor
   NormalFloat              = { link = "Normal" },
   FloatBorder              = { link = "Normal" },
@@ -200,6 +144,9 @@ local theme = {
 
 -- Apply theme --
 
+local flat = require("flat")
+flat.setup({ palette = "solarized_new" })
+
 vim.cmd("hi clear")
 
 if vim.fn.exists("syntax_on") then
@@ -207,18 +154,14 @@ if vim.fn.exists("syntax_on") then
 end
 
 for group, hl in pairs(theme) do
-  vim.api.nvim_set_hl(0, group,
-    vim.tbl_extend("keep",
-      {
-        fg = C.hex[hl.fg],
-        bg = C.hex[hl.bg],
-        sp = C.hex[hl.sp],
-        ctermfg = C.term[hl.fg],
-        ctermbg = C.term[hl.bg],
-      },
-      hl
-    )
-  )
+  hl = vim.tbl_extend("force", hl, {
+    fg = flat.hex(hl.fg),
+    bg = flat.hex(hl.bg),
+    sp = flat.hex(hl.sp),
+    ctermfg = flat.term(hl.fg),
+    ctermbg = flat.term(hl.bg),
+  })
+  vim.api.nvim_set_hl(0, group, hl)
 end
 
 vim.g.colors_name = "flat"
